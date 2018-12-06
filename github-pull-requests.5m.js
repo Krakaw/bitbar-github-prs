@@ -14,7 +14,7 @@
  * Your github username
  * @type {string}
  */
-const USER_AGENT = "Krakaw";
+const USER_AGENT = "";
 if (!USER_AGENT) {
 	console.log("Missing User-Agent");
 }
@@ -24,9 +24,7 @@ if (!USER_AGENT) {
  * @type {*[{url: string, name: string}]}
  */
 const URLS = [
-	{url: "https://api.github.com/repos/big-neon/bn-api/pulls", name: "big-neon/bn-api" },
-	{url: "https://api.github.com/repos/big-neon/bn-web/pulls", name: "big-neon/bn-web" },
-	{url: "https://api.github.com/repos/big-neon/bn-api-node/pulls", name: "big-neon/bn-api-node" },
+
 ];
 /**
  * The toolbar title
