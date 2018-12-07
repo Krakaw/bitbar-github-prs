@@ -49,8 +49,14 @@ Promise.all(promises).then(results => {
 	});
 	body = TITLE.replace("{count}", count) + "\n" + body;
 	console.log(body);
-}).catch(e => {
-	console.log("Error");
+}).catch((response) => {
+	if (response.statusCode === 403) {
+		let date = (new Date(response.headers['x-ratelimit-reset'] * 1000));
+		let fmt = _dateFormat(date, "%H:%M:%S");
+		console.log("Rate Limit Exceeded Until: ", fmt)
+	} else {
+		console.log("Error", response.statusCode);
+	}
 })
 
 /**
@@ -87,7 +93,7 @@ function getContent(contentData) {
 		const request = lib.get(url, {headers: {"Content-Type": "application/json", "User-Agent": USER_AGENT}}, (response) => {
 			// handle http errors
 			if (response.statusCode < 200 || response.statusCode > 299) {
-				reject(new Error("Failed to load page "+url+", status code: " + response.statusCode));
+				reject(response);
 			}
 			// temporary data holder
 			const body = [];
@@ -97,6 +103,23 @@ function getContent(contentData) {
 			response.on("end", () => resolve({jsonString: body.join(""), name}));
 		});
 		// handle connection errors of the request
-		request.on("error", (err) => reject(err))
+		request.on("error", (err) => reject(err, response))
 	})
+}
+
+function _dateFormat (date, fstr, utc) {
+	utc = utc ? 'getUTC' : 'get';
+	return fstr.replace (/%[YmdHMS]/g, function (m) {
+		switch (m) {
+			case '%Y': return date[utc + 'FullYear'] (); // no leading zeros required
+			case '%m': m = 1 + date[utc + 'Month'] (); break;
+			case '%d': m = date[utc + 'Date'] (); break;
+			case '%H': m = date[utc + 'Hours'] (); break;
+			case '%M': m = date[utc + 'Minutes'] (); break;
+			case '%S': m = date[utc + 'Seconds'] (); break;
+			default: return m.slice (1); // unknown code, remove %
+		}
+		// add leading zero if required
+		return ('0' + m).slice (-2);
+	});
 }
