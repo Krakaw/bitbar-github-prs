@@ -7,6 +7,8 @@
  * <bitbar.author.github>Krakaw</bitbar.author.github>
  * <bitbar.desc>Checks for pending GitHub PR's</bitbar.desc>
  * <bitbar.dependencies>node</bitbar.dependencies>
+ * <bitbar.image>https://raw.githubusercontent.com/Krakaw/bitbar-github-prs/master/screenshot.png</bitbar.image>
+ * <bitbar.abouturl>https://github.com/Krakaw/bitbar-github-prs</bitbar.abouturl>
  * <bitbar.abouturl>https://github.com/Krakaw/bitbar-github-prs</bitbar.abouturl>
  */
 
