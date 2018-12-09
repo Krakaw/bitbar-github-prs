@@ -20,18 +20,18 @@ const USER_AGENT = "";
  * Your github client ID (Create your app: https://github.com/settings/apps/)
  * @type {string}
  */
-const CLIENT_ID = ''
+const CLIENT_ID = ""
 /**
  * Your github client secret
  * @type {string}
  */
-const CLIENT_SECRET = ''
+const CLIENT_SECRET = ""
 
 if (!USER_AGENT) {
 	console.log("Missing User-Agent");
 }
 
-let urlAuth = '';
+let urlAuth = "";
 if (CLIENT_ID && CLIENT_SECRET) {
 	urlAuth = `?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
 }
