@@ -16,9 +16,27 @@
  * @type {string}
  */
 const USER_AGENT = "";
+/**
+ * Your github client ID (Create your app: https://github.com/settings/apps/)
+ * @type {string}
+ */
+const CLIENT_ID = ''
+/**
+ * Your github client secret
+ * @type {string}
+ */
+const CLIENT_SECRET = ''
+
 if (!USER_AGENT) {
 	console.log("Missing User-Agent");
 }
+
+let urlAuth = '';
+if (CLIENT_ID && CLIENT_SECRET) {
+	urlAuth = `?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
+}
+
+
 /**
  * A list of github repos and their name
  * [{url: "https://api.github.com/repos/big-neon/bn-api/pulls", name: "big-neon/bn-api" }]
@@ -86,7 +104,8 @@ function parsePulls(resultData) {
  * @return {Promise}
  */
 function getContent(contentData) {
-	const {url, name} = contentData;
+	const {name} = contentData;
+	const url = `${contentData.url}${urlAuth}`;
 	// return new pending promise
 	return new Promise((resolve, reject) => {
 		// select http or https module, depending on reqested url
