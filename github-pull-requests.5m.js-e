@@ -12,30 +12,23 @@
  */
 
 /**
- * Your github username
+ * Your GitHub Username
  * @type {string}
  */
-const USER_AGENT = "";
+const USERNAME = "";
 /**
- * Your github client ID (Create your app: https://github.com/settings/apps/)
+ * Generate a GitHub personal access token at https://github.com/settings/tokens
  * @type {string}
  */
-const CLIENT_ID = ""
+const PERSONAL_ACCESS_TOKEN = "";
 /**
- * Your github client secret
+ * Your github username as the User-Agent
  * @type {string}
  */
-const CLIENT_SECRET = ""
-
+const USER_AGENT = USERNAME;
 if (!USER_AGENT) {
 	console.log("Missing User-Agent");
 }
-
-let urlAuth = "";
-if (CLIENT_ID && CLIENT_SECRET) {
-	urlAuth = `?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
-}
-
 
 /**
  * A list of github repos and their name
@@ -43,14 +36,16 @@ if (CLIENT_ID && CLIENT_SECRET) {
  * @type {*[{url: string, name: string}]}
  */
 const URLS = [
-
+	{url: "https://api.github.com/repos/big-neon/bn-api/pulls", name: "big-neon/bn-api" },
+	{url: "https://api.github.com/repos/big-neon/bn-web/pulls", name: "big-neon/bn-web" },
+	{url: "https://api.github.com/repos/big-neon/bn-api-node/pulls", name: "big-neon/bn-api-node" },
 ];
 /**
  * The toolbar title
  * The only var is {count} which is the total pending pull requests
  * @type {string}
  */
-const TITLE = "{count} Pending PR's";
+const TITLE = "{count} PR's";
 
 const promises = [];
 
@@ -105,12 +100,16 @@ function parsePulls(resultData) {
  */
 function getContent(contentData) {
 	const {name} = contentData;
-	const url = `${contentData.url}${urlAuth}`;
+	const url = contentData.url;
 	// return new pending promise
 	return new Promise((resolve, reject) => {
+		const headers = {"Content-Type": "application/json", "User-Agent": USER_AGENT};
+		if (USERNAME && PERSONAL_ACCESS_TOKEN) {
+			headers["Authorization"] = `Basic ${Buffer.from(USERNAME + ":" + PERSONAL_ACCESS_TOKEN).toString('base64')}`
+		}
 		// select http or https module, depending on reqested url
 		const lib = url.startsWith("https") ? require("https") : require("http");
-		const request = lib.get(url, {headers: {"Content-Type": "application/json", "User-Agent": USER_AGENT}}, (response) => {
+		const request = lib.get(url, {headers}, (response) => {
 			// handle http errors
 			if (response.statusCode < 200 || response.statusCode > 299) {
 				reject(response);
