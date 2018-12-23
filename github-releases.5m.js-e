@@ -15,7 +15,7 @@
  * Your GitHub Username
  * @type {string}
  */
-const USERNAME = "";
+const USERNAME = "Krakaw";
 /**
  * Generate a GitHub personal access token at https://github.com/settings/tokens
  * @type {string}
@@ -102,7 +102,11 @@ function getContent(contentData) {
 	const url = contentData.url;
 	// return new pending promise
 	return new Promise((resolve, reject) => {
-		const headers = {"Content-Type": "application/json", "User-Agent": USER_AGENT};
+		const headers = {
+			"Content-Type": "application/json",
+			"User-Agent": USER_AGENT,
+			"Cache-Control": "no-cache, no-store, must-revalidate"
+		};
 		if (USERNAME && PERSONAL_ACCESS_TOKEN) {
 			headers["Authorization"] = `Basic ${Buffer.from(USERNAME + ":" + PERSONAL_ACCESS_TOKEN).toString('base64')}`
 		}
