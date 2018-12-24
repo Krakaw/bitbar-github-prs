@@ -37,7 +37,7 @@ if (!USER_AGENT) {
  * [{url: "https://api.github.com/repos/big-neon/bn-api/tags", name: "big-neon/bn-api", currentVersion: async ():string => {} }]
  * @type {*[{url: string, name: string}]}
  */
-const URLS = ENV.URLS_BASE64 ? eval(Buffer.from(ENV.URLS_BASE64, "base64").toString("ascii")) : [];
+const URLS = ENV.RELEASE_URLS_BASE64 ? eval(Buffer.from(ENV.RELEASE_URLS_BASE64, "base64").toString("ascii")) : [];
 /**
  * The toolbar title
  * The only var is {count} which is the total pending pull requests
@@ -177,8 +177,6 @@ function _parseEnv(envPath) {
 			});
 		}
 	}catch(e) {
-
 	}
-
 	return env;
 }

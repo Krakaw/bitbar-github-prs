@@ -11,16 +11,19 @@
  * <bitbar.abouturl>https://github.com/Krakaw/bitbar-github-prs</bitbar.abouturl>
  */
 
+const fs = require("fs");
+const path = require("path");
+const ENV = _parseEnv(path.resolve(__dirname, ".env"));
 /**
  * Your GitHub Username
  * @type {string}
  */
-const USERNAME = "";
+const USERNAME = ENV.USERNAME || "";
 /**
  * Generate a GitHub personal access token at https://github.com/settings/tokens
  * @type {string}
  */
-const PERSONAL_ACCESS_TOKEN = "";
+const PERSONAL_ACCESS_TOKEN = ENV.PERSONAL_ACCESS_TOKEN || "";
 /**
  * Your github username as the User-Agent
  * @type {string}
@@ -35,11 +38,7 @@ if (!USER_AGENT) {
  * [{url: "https://api.github.com/repos/big-neon/bn-api/pulls", name: "big-neon/bn-api" }]
  * @type {*[{url: string, name: string}]}
  */
-const URLS = [
-	{url: "https://api.github.com/repos/big-neon/bn-api/pulls", name: "big-neon/bn-api" },
-	{url: "https://api.github.com/repos/big-neon/bn-web/pulls", name: "big-neon/bn-web" },
-	{url: "https://api.github.com/repos/big-neon/bn-api-node/pulls", name: "big-neon/bn-api-node" },
-];
+const URLS = ENV.PR_URLS_BASE64 ? eval(Buffer.from(ENV.PR_URLS_BASE64, "base64").toString("ascii")) : [];;
 /**
  * The toolbar title
  * The only var is {count} which is the total pending pull requests
@@ -141,4 +140,26 @@ function _dateFormat (date, fstr, utc) {
 		// add leading zero if required
 		return ('0' + m).slice (-2);
 	});
+}
+
+function _parseEnv(envPath) {
+	const env = {};
+	try {
+		if (fs.existsSync(envPath)) {
+			let data = fs.readFileSync(envPath, "utf8");
+			data = data.split("\n");
+			data.filter(line => {
+				let trimmedLine = line.trim();
+				return trimmedLine !== "" && trimmedLine.substr(0,1) !== "#" && trimmedLine.indexOf("=") > -1;
+			}).forEach(line => {
+				let trimmedLine = line.trim();
+				let indexOfEqual = trimmedLine.indexOf("=");
+				let key = trimmedLine.substr(0,indexOfEqual);
+				let value = trimmedLine.substr(indexOfEqual + 1);
+				env[key] = value;
+			});
+		}
+	}catch(e) {
+	}
+	return env;
 }
