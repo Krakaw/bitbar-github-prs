@@ -11,8 +11,8 @@
  */
 
 const fs = require("fs");
-
-const ENV = _parseEnv("./.env");
+const path = require("path");
+const ENV = _parseEnv(path.resolve(__dirname, ".env"));
 /**
  * Your GitHub Username
  * @type {string}
@@ -161,6 +161,7 @@ function _dateFormat(date, fstr, utc) {
 function _parseEnv(envPath) {
 	const env = {};
 	try {
+
 		if (fs.existsSync(envPath)) {
 			let data = fs.readFileSync(envPath, "utf8");
 			data = data.split("\n");
