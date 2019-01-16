@@ -38,7 +38,8 @@ if (!USER_AGENT) {
  * [{url: "https://api.github.com/repos/big-neon/bn-api/pulls", name: "big-neon/bn-api" }]
  * @type {*[{url: string, name: string}]}
  */
-const URLS = ENV.PR_URLS_BASE64 ? eval(Buffer.from(ENV.PR_URLS_BASE64, "base64").toString("ascii")) : [];;
+const URLS = ENV.PR_URLS_BASE64 ? eval(Buffer.from(ENV.PR_URLS_BASE64, "base64").toString("ascii")) : [];
+
 /**
  * The toolbar title
  * The only var is {count} which is the total pending pull requests
