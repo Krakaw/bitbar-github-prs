@@ -71,7 +71,7 @@ Promise.all(promises).then(results => {
 	} else {
 		console.log("Error", response.statusCode);
 	}
-})
+});
 
 /**
  * Parses the github response and pulls the fields out
@@ -89,7 +89,8 @@ function parsePulls(resultData) {
 		let row = `--#${pull.number} - ${pull.title} - ${pull.user.login} | href=${pull.html_url}`;
 		return row;
 	}).join("\n");
-	result = "---\n" + repoName + " (" + count + ")\n" + result + "\n";
+	let repoUrl = `https://github.com/${repoName}/pulls`;
+	result = "---\n" + repoName + " (" + count + ") | href="+repoUrl+"\n" + result + "\n";
 	return { count, result };
 }
 
