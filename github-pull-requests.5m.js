@@ -47,51 +47,77 @@ const URLS = ENV.PR_URLS_BASE64 ? eval(Buffer.from(ENV.PR_URLS_BASE64, "base64")
  */
 const TITLE = "{count} PR's";
 
-const promises = [];
-
-URLS.forEach(url => {
-	promises.push(getContent(url));
-});
-
-Promise.all(promises).then(results => {
-	let count = 0;
+async function fetchPullRequests() {
 	let body = "";
-	results.forEach(result => {
-		result = parsePulls(result);
-		count += result.count;
-		body += result.result;
-	});
-	body = TITLE.replace("{count}", count) + "\n" + body;
-	console.log(body);
-}).catch((response) => {
-	if (response.statusCode === 403) {
-		let date = (new Date(response.headers['x-ratelimit-reset'] * 1000));
-		let fmt = _dateFormat(date, "%H:%M:%S");
-		console.log("Rate Limit Exceeded Until: ", fmt)
-	} else {
-		console.log("Error", response.statusCode);
+	let count = 0;
+	try {
+		for (let i in URLS) {
+			let resultData = await getContent(URLS[i]);
+			let result = await parsePulls(resultData);
+			count += result.count;
+			body += result.result;
+		}
+	} catch (e) {
+		console.log(e);
+		// if (response.statusCode === 403) {
+		// 	let date = (new Date(response.headers['x-ratelimit-reset'] * 1000));
+		// 	let fmt = _dateFormat(date, "%H:%M:%S");
+		// 	console.log("Rate Limit Exceeded Until: ", fmt)
+		// } else {
+		// 	console.log("Error", response.statusCode);
+		// }
 	}
+	body = TITLE.replace("{count}", count) + "\n" + body;
+	return body;
+}
+
+fetchPullRequests().then(body => {
+	console.log(body)
+}).catch(e => {
+	console.log(e);
 });
+
 
 /**
  * Parses the github response and pulls the fields out
  * @param resultData
  * @return {{count: *, result: (string|string)}}
  */
-function parsePulls(resultData) {
+async function parsePulls(resultData) {
 	const {jsonString, name} = resultData;
 	let json = JSON.parse(jsonString);
 	let result = "";
 	let count = json.length;
 	let repoName = name;
-	result += json.map(pull => {
+	for (let i in json) {
+		const pull = json[i];
+		const approvedIcon = await getApprovedIcon(pull);
 		repoName = pull.base.repo.full_name;
-		let row = `--#${pull.number} - ${pull.title} - ${pull.user.login} | href=${pull.html_url}`;
-		return row;
-	}).join("\n");
+		let row = `--#${pull.number} - ${pull.title} - ${pull.user.login} ${approvedIcon}| href=${pull.html_url}`;
+		result += row + `\n`;
+	}
 	let repoUrl = `https://github.com/${repoName}/pulls`;
-	result = "---\n" + repoName + " (" + count + ") | href="+repoUrl+"\n" + result + "\n";
-	return { count, result };
+	result = "---\n" + repoName + " (" + count + ") | href=" + repoUrl + "\n" + result + "\n";
+	return {count, result};
+}
+
+async function getApprovedIcon(pullRequest) {
+	try {
+		const repoName = pullRequest.base.repo.full_name;
+		const repoUrl = `https://api.github.com/repos/${repoName}/pulls/${pullRequest.number}/reviews`;
+		const {jsonString} = await getContent({url: repoUrl, name: ''});
+		const json = JSON.parse(jsonString);
+		let states = json.map(item => item.state);
+		if (states.indexOf('APPROVED') > -1) {
+			return ':white_check_mark:';
+		}else if (states.indexOf("CHANGES_REQUESTED") > -1) {
+			return "❓";
+		} else {
+			return "⚠️";
+		}
+	}catch(e) {
+		return false;
+	}
 }
 
 /**
@@ -127,20 +153,32 @@ function getContent(contentData) {
 	})
 }
 
-function _dateFormat (date, fstr, utc) {
+function _dateFormat(date, fstr, utc) {
 	utc = utc ? 'getUTC' : 'get';
-	return fstr.replace (/%[YmdHMS]/g, function (m) {
+	return fstr.replace(/%[YmdHMS]/g, function (m) {
 		switch (m) {
-			case '%Y': return date[utc + 'FullYear'] (); // no leading zeros required
-			case '%m': m = 1 + date[utc + 'Month'] (); break;
-			case '%d': m = date[utc + 'Date'] (); break;
-			case '%H': m = date[utc + 'Hours'] (); break;
-			case '%M': m = date[utc + 'Minutes'] (); break;
-			case '%S': m = date[utc + 'Seconds'] (); break;
-			default: return m.slice (1); // unknown code, remove %
+			case '%Y':
+				return date[utc + 'FullYear'](); // no leading zeros required
+			case '%m':
+				m = 1 + date[utc + 'Month']();
+				break;
+			case '%d':
+				m = date[utc + 'Date']();
+				break;
+			case '%H':
+				m = date[utc + 'Hours']();
+				break;
+			case '%M':
+				m = date[utc + 'Minutes']();
+				break;
+			case '%S':
+				m = date[utc + 'Seconds']();
+				break;
+			default:
+				return m.slice(1); // unknown code, remove %
 		}
 		// add leading zero if required
-		return ('0' + m).slice (-2);
+		return ('0' + m).slice(-2);
 	});
 }
 
@@ -152,16 +190,16 @@ function _parseEnv(envPath) {
 			data = data.split("\n");
 			data.filter(line => {
 				let trimmedLine = line.trim();
-				return trimmedLine !== "" && trimmedLine.substr(0,1) !== "#" && trimmedLine.indexOf("=") > -1;
+				return trimmedLine !== "" && trimmedLine.substr(0, 1) !== "#" && trimmedLine.indexOf("=") > -1;
 			}).forEach(line => {
 				let trimmedLine = line.trim();
 				let indexOfEqual = trimmedLine.indexOf("=");
-				let key = trimmedLine.substr(0,indexOfEqual);
+				let key = trimmedLine.substr(0, indexOfEqual);
 				let value = trimmedLine.substr(indexOfEqual + 1);
 				env[key] = value;
 			});
 		}
-	}catch(e) {
+	} catch (e) {
 	}
 	return env;
 }
