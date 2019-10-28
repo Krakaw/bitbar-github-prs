@@ -98,8 +98,7 @@ function parseTags(resultData, current) {
  * @return {Promise}
  */
 function getContent(contentData) {
-	const {name, currentVersion} = contentData;
-	const url = contentData.url;
+	const {name, currentVersion, url, username = USERNAME, password = PERSONAL_ACCESS_TOKEN} = contentData;
 	// return new pending promise
 	return new Promise((resolve, reject) => {
 		const headers = {
@@ -107,9 +106,11 @@ function getContent(contentData) {
 			"User-Agent": USER_AGENT,
 			"Cache-Control": "no-cache, no-store, must-revalidate"
 		};
-		if (USERNAME && PERSONAL_ACCESS_TOKEN) {
-			headers["Authorization"] = `Basic ${Buffer.from(USERNAME + ":" + PERSONAL_ACCESS_TOKEN).toString('base64')}`
+
+		if (username && password) {
+			headers["Authorization"] = `Basic ${Buffer.from(username + ":" + password).toString('base64')}`
 		}
+
 		// select http or https module, depending on reqested url
 		const lib = url.startsWith("https") ? require("https") : require("http");
 		const request = lib.get(url, {headers}, (response) => {
