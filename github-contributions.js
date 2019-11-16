@@ -10,12 +10,11 @@
  * <bitbar.image>https://raw.githubusercontent.com/Krakaw/bitbar-github-prs/master/screenshot.png</bitbar.image>
  * <bitbar.abouturl>https://github.com/Krakaw/bitbar-github-prs</bitbar.abouturl>
  */
-
-const {getConfig, dateFormat, getContent} = require('./_helpers');
-
 const fs = require('fs')
 const path = require("path");
+const {getConfig, dateFormat, getContent} = require('./_helpers');
 const config = getConfig();
+
 /**
  * Your GitHub Username
  * @type {string}
@@ -39,7 +38,9 @@ if (!userAgent) {
 let outputFile = path.resolve(__dirname, config.CONTRIBUTION_OUTPUT);
 const userContributions = JSON.parse(fs.readFileSync(outputFile, 'utf-8'))
 
-const checkUsers = (config.CONTRIBUTION_USERS || '').split(',');
+const args = process.argv.slice(2);
+const checkUsers = (args[0] || config.CONTRIBUTION_USERS ||  '').split(',');
+const writeFile = args[1] !== 'false' && args[1] !== '0';
 
 const today = dateFormat('%Y-%m-%d');
 
@@ -55,7 +56,10 @@ async function getContriubtions() {
     });
     console.log(totalsByUser);
     userContributions[today] = totalsByUser
-    fs.writeFileSync(outputFile, JSON.stringify(userContributions))
+    if (writeFile) {
+        fs.writeFileSync(outputFile, JSON.stringify(userContributions));
+    }
+
 
 }
 
