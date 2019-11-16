@@ -42,7 +42,7 @@ const args = process.argv.slice(2);
 const checkUsers = (args[0] || config.CONTRIBUTION_USERS ||  '').split(',');
 const writeFile = args[1] !== 'false' && args[1] !== '0';
 
-const today = dateFormat('%Y-%m-%d');
+const today = dateFormat('%Y-%m-%d %H:%M');
 
 async function getContriubtions() {
     const totalsByUser = []
