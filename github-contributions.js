@@ -41,7 +41,7 @@ const userContributions = JSON.parse(fs.readFileSync(outputFile, 'utf-8'))
 
 const checkUsers = (config.CONTRIBUTION_USERS || '').split(',');
 
-const today = dateFormat('Y-m-d');
+const today = dateFormat('%Y-%m-%d');
 
 async function getContriubtions() {
     const totalsByUser = []
