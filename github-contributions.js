@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env /usr/local/bin/node
 
 /**
  * <bitbar.title>GitHub Contributions</bitbar.title>
@@ -54,13 +54,11 @@ async function getContriubtions() {
     totalsByUser.sort((a, b) => {
         return a.total > b.total ? -1 : a.total < b.total ? 1 : 0;
     });
-    console.log(totalsByUser);
     userContributions[today] = totalsByUser
     if (writeFile) {
         fs.writeFileSync(outputFile, JSON.stringify(userContributions));
     }
-
-
+    return totalsByUser;
 }
 
 async function getUserContributions(checkUsername, date) {
@@ -80,5 +78,7 @@ async function getUserContributions(checkUsername, date) {
 }
 
 (async () => {
-    await getContriubtions()
+    let contributions = await getContriubtions();
+    console.log(`Contributions\n---\n`);
+    console.log(contributions.map(i => `${i.username} - ${i.total}`).join(`\n`));
 })();
