@@ -76,9 +76,45 @@ async function getUserContributions(checkUsername, date) {
     })
     return total
 }
+function convertToKeyVal(userContributionBlock) {
+    let keyVal = {};
+    userContributionBlock.forEach(item => {
+        keyVal[item.username] = item.total;
+    });
+    return keyVal;
+}
+
+function diff(input) {
+    return input.slice(1).map(function(n, i) { return n - input[i]; });
+}
+
+function getOrderedHistory(userContributions) {
+    let keys = Object.keys(userContributions);
+    keys = keys.sort((a,b) => {
+        return a<b ? -1 : 1;
+    }).slice(-5);
+    let perUser = {};
+    keys.forEach(key => {
+        let keyVal = convertToKeyVal(userContributions[key]);
+        for (let user in keyVal) {
+
+            if (!perUser.hasOwnProperty(user)) {
+                perUser[user] = [];
+            }
+            perUser[user].push(keyVal[user]);
+        }
+    });
+    for (let i in perUser) {
+        perUser[i] = diff(perUser[i]);
+    }
+    return perUser;
+}
 
 (async () => {
+    let userHistory = getOrderedHistory(userContributions);
     let contributions = await getContriubtions();
     console.log(`Contributions\n---\n`);
-    console.log(contributions.map(i => `${i.username} - ${i.total}`).join(`\n`));
+    console.log(contributions.map(i => {
+        return `${i.username} - ${i.total}\n--${userHistory[i.username].join(" ")}`
+    }).join(`\n`));
 })();
