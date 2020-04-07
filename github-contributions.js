@@ -62,18 +62,24 @@ async function getContriubtions() {
 }
 
 async function getUserContributions(checkUsername, date) {
-    const content = await getContent({
-        url: `https://github.com/users/${checkUsername}/contributions?to=${date}`,
-        username,
-        password,
-        userAgent
-    })
-    const regex = /data-count="(\d+)"/gm
-    const matches = content.body.match(regex)//content.match(regex);
-    let total = 0
-    matches.forEach(match => {
-        total += +match.replace('data-count=', '').replace(/"/g, '')
-    })
+    let total = 0;
+    try {
+        const content = await getContent({
+            url: `https://github.com/users/${checkUsername}/contributions?to=${date}`,
+            username,
+            password,
+            userAgent
+        })
+        const regex = /data-count="(\d+)"/gm
+        const matches = content.body.match(regex)//content.match(regex);
+
+        matches.forEach(match => {
+            total += +match.replace('data-count=', '').replace(/"/g, '')
+        })
+    }catch {
+        total = "Error"
+    }
+
     return total
 }
 function convertToKeyVal(userContributionBlock) {

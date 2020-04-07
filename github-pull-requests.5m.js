@@ -62,13 +62,6 @@ async function fetchPullRequests() {
 		}
 	} catch (e) {
 		console.log(e);
-		// if (response.statusCode === 403) {
-		// 	let date = (new Date(response.headers['x-ratelimit-reset'] * 1000));
-		// 	let fmt = _dateFormat(date, "%H:%M:%S");
-		// 	console.log("Rate Limit Exceeded Until: ", fmt)
-		// } else {
-		// 	console.log("Error", response.statusCode);
-		// }
 	}
 	body = TITLE.replace("{count}", count) + "\n" + body;
 	return body;
